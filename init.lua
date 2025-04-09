@@ -35,4 +35,14 @@ require "nvchad.autocmds"
 vim.schedule(function()
   require "mappings"
 end)
-vim.cmd[[set noswapfile]]
+
+
+
+require "configs.copilot_chat"
+
+
+if vim.g.vscode then
+  local vscode = require("vscode")
+else
+  -- ordinary Neovim
+end

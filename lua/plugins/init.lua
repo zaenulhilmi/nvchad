@@ -18,6 +18,8 @@ return {
   		ensure_installed = {
   			"vim", "lua", "vimdoc", "html", "css", "go", "rust", "python", "typescript", "javascript", "markdown"
   		},
+      -- not in vscode
+      is_vscode = false
   	},
   },
 }

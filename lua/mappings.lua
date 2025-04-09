@@ -9,7 +9,7 @@ map("i", "jk", "<ESC>")
 
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
 --
--- 
+--
 
 vim.g.clipboard = {
   name = 'WslClipboard',
@@ -23,3 +23,14 @@ vim.g.clipboard = {
   },
   cache_enabled = 0,
 }
+
+
+if vim.g.vscode then
+  -- VSCode extension
+else
+  map("n", "<leader>1", "<cmd>NvimTreeToggle<cr>", { desc = "Toggle NvimTree" })
+end
+
+map({ "n", "t" }, "<leader>0", function()
+  require("nvchad.term").toggle { pos = "sp", id = "htoggleTerm" }
+end, { desc = "terminal toggleable horizontal term" })
