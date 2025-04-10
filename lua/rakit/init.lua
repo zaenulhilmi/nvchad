@@ -22,6 +22,7 @@ local function stream_ollama_response(prompt, on_response)
   }),
   }
 
+  local start = 1
   vim.fn.jobstart(cmd, {
     stdout_buffered = false,
     on_stdout = function(_, data, _)
@@ -30,7 +31,8 @@ local function stream_ollama_response(prompt, on_response)
           local ok, decoded = pcall(vim.json.decode, line)
           if ok and decoded and decoded.response and on_response then
             vim.schedule(function()
-              on_response(decoded.response, decoded.done)
+              on_response(decoded.response, decoded.done, start == 1)
+              start = start + 1
             end)
           end
         end
@@ -78,11 +80,17 @@ function M.setup()
     if text_content then
       --vim.notify("Latest text:\n" .. text_content, vim.log.levels.INFO)
 
-      stream_ollama_response(text_content, function(response, done)
+      stream_ollama_response(text_content, function(response, done, start)
         if response then
           text.append_text(response)
         else
           vim.notify("Failed to fetch URL", vim.sts.levels.ERROR)
+        end
+        if start then
+          text.append_text("\n\n####### Start of Response\n\n")
+        end
+        if done then
+          text.append_text("\n\n####### End of Response\n")
         end
       end)
     else
