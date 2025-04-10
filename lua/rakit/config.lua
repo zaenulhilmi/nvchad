@@ -26,6 +26,8 @@ M.window = {
   }
 }
 
+M.window_name = "Rakit Chat"
+
 -- API configurations
 M.api = {
   ghost = {

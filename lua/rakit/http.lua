@@ -1,3 +1,4 @@
+
 local M = {}
 
 function M.get_request(url)
@@ -10,11 +11,13 @@ function M.get_request(url)
 end
 
 function M.fetch_url_async(url, callback)
+  vim.notify("Fetching URL: " .. url, vim.log.levels.INFO)
   local stdout = vim.loop.new_pipe(false)
   local stderr = vim.loop.new_pipe(false)
 
   local handle
   handle = vim.loop.spawn("curl", {
+    -- post request 
     args = { "-s", url },
     stdio = { nil, stdout, stderr },
   }, function(code)
@@ -47,5 +50,6 @@ function M.fetch_url_async(url, callback)
     end
   end)
 end
+
 
 return M 

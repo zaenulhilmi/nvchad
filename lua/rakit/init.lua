@@ -5,6 +5,53 @@ local M = {}
 local picker = require("rakit.picker")
 local ghost = require("rakit.ghost")
 local window = require("rakit.window")
+local text = require("rakit.text")
+local http = require("rakit.http")
+local config = require("rakit.config")
+
+
+local function stream_ollama_response(prompt, on_response)
+  local cmd = {
+    "curl",
+    "--no-buffer", -- important to stream line by line
+    "--location", "http://localhost:11434/api/generate",
+    "--header", "Content-Type: application/json",
+    "--data", vim.fn.json_encode({
+    model = "codellama:7b",
+    prompt = prompt,
+  }),
+  }
+
+  vim.fn.jobstart(cmd, {
+    stdout_buffered = false,
+    on_stdout = function(_, data, _)
+      for _, line in ipairs(data) do
+        if line ~= "" then
+          local ok, decoded = pcall(vim.json.decode, line)
+          if ok and decoded and decoded.response and on_response then
+            vim.schedule(function()
+              on_response(decoded.response, decoded.done)
+            end)
+          end
+        end
+      end
+    end,
+    on_stderr = function(_, data, _)
+      for _, line in ipairs(data) do
+        if line ~= "" then
+          vim.schedule(function()
+            --     vim.notify("[stderr] " .. line, vim.log.levels.ERROR)
+          end)
+        end
+      end
+    end,
+    on_exit = function(_, code, _)
+      vim.schedule(function()
+        vim.notify("Stream ended with exit code: " .. code)
+      end)
+    end,
+  })
+end
 
 function M.setup()
   -- Basic commands and keymaps
@@ -25,6 +72,24 @@ function M.setup()
   vim.keymap.set("n", "<leader>tt", function()
     window.open_chat_window()
   end, { desc = "Reload rakit.nvim" })
+
+  vim.keymap.set("n", "<leader>ts", function()
+    local text_content = text.get_latest_text()
+    if text_content then
+      --vim.notify("Latest text:\n" .. text_content, vim.log.levels.INFO)
+
+      stream_ollama_response(text_content, function(response, done)
+        if response then
+          text.append_text(response)
+        else
+          vim.notify("Failed to fetch URL", vim.sts.levels.ERROR)
+        end
+      end)
+    else
+      vim.notify("No text found in the buffer", vim.log.levels.WARN)
+    end
+  end, { desc = "Reload rakit.nvim" })
+
 
   -- Visual mode keymaps
   vim.keymap.set("v", "<C-r>", function()

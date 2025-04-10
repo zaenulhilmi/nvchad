@@ -2,18 +2,8 @@ local config = require("rakit.config")
 
 local M = {}
 
-local window_name = "RakitWindow"
+local window_name = config.window_name
 
---- Get a buffer by its short (tail) name
-local function get_buffer_by_name(name)
-  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    local buf_name = vim.api.nvim_buf_get_name(buf)
-    if vim.fn.fnamemodify(buf_name, ":t") == name then
-      return buf
-    end
-  end
-  return nil
-end
 
 --- Check if any window is showing the buffer
 local function is_window_open_for_buffer(buf)
@@ -43,9 +33,21 @@ local function create_scratch_buffer(name)
   return buf
 end
 
+
+--- Get a buffer by its short (tail) name
+function M.get_buffer_by_name(name)
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    local buf_name = vim.api.nvim_buf_get_name(buf)
+    if vim.fn.fnamemodify(buf_name, ":t") == name then
+      return buf
+    end
+  end
+  return nil
+end
+
 --- Public: Open or focus the chat window
 function M.open_chat_window()
-  local buf = get_buffer_by_name(window_name)
+  local buf = M.get_buffer_by_name(window_name)
 
   if not buf or not vim.api.nvim_buf_is_valid(buf) then
     vim.notify("Creating new chat window", vim.log.levels.INFO)
