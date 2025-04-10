@@ -52,6 +52,8 @@ function M.open_chat_window()
   if not buf or not vim.api.nvim_buf_is_valid(buf) then
     vim.notify("Creating new chat window", vim.log.levels.INFO)
     create_scratch_buffer(window_name)
+    buf = M.get_buffer_by_name(window_name)
+    vim.bo[buf].filetype = 'markdown'
     return
   end
 
@@ -64,6 +66,7 @@ function M.open_chat_window()
   vim.notify("Showing existing chat buffer", vim.log.levels.INFO)
   vim.cmd("vsplit")
   vim.api.nvim_win_set_buf(0, buf)
+  vim.bo[buf].filetype = 'markdown'
 end
 
 return M
