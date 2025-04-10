@@ -4,7 +4,7 @@ local M = {}
 M.picker = {
   default = {
     prompt_title = "Choose an action",
-    results = { "Explain", "Refactor", "Tests" },
+    results = { "Chat", "Explain", "Refactor", "Tests" },
   },
   language = {
     prompt_title = "Select a programming language",

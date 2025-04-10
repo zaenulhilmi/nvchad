@@ -6,6 +6,7 @@ local conf = require("telescope.config").values
 
 local config = require("rakit.config")
 local window = require("rakit.window")
+local core = require("rakit.core")
 
 local M = {}
 
@@ -36,7 +37,9 @@ function M.action_picker()
     on_select = function(selection)
       if not selection then return end
 
-      if selection == "Explain" then
+      if selection == "Chat" then
+        window.open_chat_window()
+      elseif selection == "Explain" then
         local visual = "abcd"
         if visual and visual ~= "" then
           window.open_explanation_window(visual)

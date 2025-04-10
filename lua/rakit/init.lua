@@ -6,8 +6,8 @@ local picker = require("rakit.picker")
 local ghost = require("rakit.ghost")
 local window = require("rakit.window")
 local text = require("rakit.text")
-local http = require("rakit.http")
 local config = require("rakit.config")
+local core = require("rakit.core")
 
 
 local function stream_ollama_response(prompt, on_response)
@@ -75,11 +75,21 @@ function M.setup()
     window.open_chat_window()
   end, { desc = "Reload rakit.nvim" })
 
+  vim.keymap.set("n", "<CR>", function()
+    local buf = window.get_buffer_by_name(config.window_name)
+    if not buf or not vim.api.nvim_buf_is_valid(buf) then
+      vim.notify("no buffer found", vim.log.levels.WARN)
+      return
+    end
+
+    core.chat()
+  end, { desc = "Reload rakit.nvim" })
+
+
+
   vim.keymap.set("n", "<leader>ts", function()
     local text_content = text.get_latest_text()
     if text_content then
-      --vim.notify("Latest text:\n" .. text_content, vim.log.levels.INFO)
-
       stream_ollama_response(text_content, function(response, done, start)
         if response then
           text.append_text(response)
