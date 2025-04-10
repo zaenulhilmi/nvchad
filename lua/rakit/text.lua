@@ -3,7 +3,6 @@ local window = require("rakit.window")
 
 local M = {}
 
-
 local function extract_last_prompt(text)
   local last_end = 0
 

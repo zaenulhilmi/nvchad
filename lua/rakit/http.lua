@@ -62,7 +62,6 @@ function M.stream_ollama_response(prompt, on_response)
   }),
   }
 
-  local start = 1
   vim.fn.jobstart(cmd, {
     stdout_buffered = false,
     on_stdout = function(_, data, _)
@@ -71,8 +70,7 @@ function M.stream_ollama_response(prompt, on_response)
           local ok, decoded = pcall(vim.json.decode, line)
           if ok and decoded and decoded.response and on_response then
             vim.schedule(function()
-              on_response(decoded.response, decoded.done, start == 1)
-              start = start + 1
+              on_response(decoded.response, decoded.done)
             end)
           end
         end
@@ -96,4 +94,3 @@ function M.stream_ollama_response(prompt, on_response)
 end
 
 return M
-
