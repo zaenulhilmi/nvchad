@@ -71,4 +71,18 @@ function M.append_text(text)
   end
 end
 
+function M.get_file_content(buf)
+  if not buf or not vim.api.nvim_buf_is_valid(buf) then
+    return nil
+  end
+
+  local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+  local text = table.concat(lines, "\n")
+  if text == "" then
+    return nil
+  end
+
+  return text
+end
+
 return M

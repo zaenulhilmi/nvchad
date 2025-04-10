@@ -32,7 +32,7 @@ local function create_picker(opts)
 end
 
 -- Action picker with Explain, Refactor, Tests options
-function M.action_picker()
+function M.action_picker(callback)
   local opts = vim.tbl_deep_extend("force", config.picker.default, {
     on_select = function(selection)
       if not selection then return end
@@ -40,13 +40,8 @@ function M.action_picker()
       if selection == "Chat" then
         window.open_chat_window()
       elseif selection == "Explain" then
-        local visual = "abcd"
-        if visual and visual ~= "" then
-          window.open_explanation_window(visual)
-          vim.notify("Opened explanation window", vim.log.levels.INFO)
-        else
-          vim.notify("No text selected", vim.log.levels.WARN)
-        end
+          window.open_chat_window()
+          callback()
       else
         vim.notify("Selected action: " .. selection, vim.log.levels.INFO)
       end
