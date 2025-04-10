@@ -85,4 +85,33 @@ function M.get_file_content(buf)
   return text
 end
 
+function M.get_visual_selection(callback)
+  vim.schedule(function()
+    vim.cmd("normal! gv")
+
+    local bufnr = 0
+    local start_pos = vim.fn.getpos("'<")
+    local end_pos = vim.fn.getpos("'>")
+
+    local lines = vim.api.nvim_buf_get_lines(bufnr, start_pos[2] - 1, end_pos[2], false)
+
+    if #lines == 0 then
+      vim.notify("No selection", vim.log.levels.WARN)
+      return
+    end
+
+    -- Trim based on columns
+    if #lines == 1 then
+      lines[1] = lines[1]:sub(start_pos[3], end_pos[3])
+    else
+      lines[1] = lines[1]:sub(start_pos[3])
+      lines[#lines] = lines[#lines]:sub(1, end_pos[3])
+    end
+
+    local selected_text = table.concat(lines, "\n")
+    callback(selected_text)
+  end)
+end
+
+
 return M
