@@ -4,18 +4,42 @@ local M = {}
 -- Create namespace for ghost text
 local ns = vim.api.nvim_create_namespace("ghost-text")
 local extmark_id = nil
-
 function M.update_ghost(text)
+  -- Clear previous extmark
+  if extmark_id then
+    pcall(vim.api.nvim_buf_del_extmark, 0, ns, extmark_id)
+  end
+
+  local row = vim.fn.line('.') - 1
+  local lines = vim.split(text, "\n", { plain = true })
+
+  -- Convert lines into the format virt_lines expects
+  local virt_lines = {}
+  for _, line in ipairs(lines) do
+    table.insert(virt_lines, { { line, "Comment" } })
+  end
+
+  extmark_id = vim.api.nvim_buf_set_extmark(0, ns, row, 0, {
+    id = extmark_id,
+    virt_lines = virt_lines,
+    virt_lines_above = false, -- set to true to show above current line
+    hl_mode = "combine",
+  })
+end
+
+function M.append_ghost(text)
   local row = vim.fn.line('.') - 1
   local col = vim.fn.col('.') - 1
 
-  -- Update or create extmark
-  extmark_id = vim.api.nvim_buf_set_extmark(0, ns, row, col, {
-    id = extmark_id,
-    virt_text = { { text, "Comment" } },
-    virt_text_pos = "inline",
-    hl_mode = "combine",
-  })
+  -- Append ghost text to the current line
+  vim.api.nvim_buf_set_lines(0, row, row + 1, false, { text })
+end
+
+function M.clear_ghost()
+  if extmark_id then
+    vim.api.nvim_buf_del_extmark(0, ns, extmark_id)
+    extmark_id = nil
+  end
 end
 
 function M.stream_ghost(prompt)
@@ -33,9 +57,9 @@ function M.stream_ghost(prompt)
       "http://localhost:11434/api/generate",
       "--header", "Content-Type: application/json",
       "--data", vim.fn.json_encode({
-        model = "codegemma",
-        prompt = prompt,
-      }),
+      model = "codegemma",
+      prompt = prompt,
+    }),
     },
     stdio = { nil, stdout, stderr },
   }, function(code)
@@ -88,7 +112,7 @@ function M.setup()
     end,
   })
 
-  -- Autocmd to clear ghost text when leaving insert mode 
+  -- Autocmd to clear ghost text when leaving insert mode
   vim.api.nvim_create_autocmd("InsertLeave", {
     callback = function()
       vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
@@ -96,4 +120,4 @@ function M.setup()
   })
 end
 
-return M 
+return M

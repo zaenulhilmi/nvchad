@@ -1,5 +1,6 @@
 local text = require("rakit.text")
 local http = require("rakit.http")
+local config = require("rakit.config")
 
 local M = {}
 
@@ -8,7 +9,7 @@ function M.chat()
 
   if text_content then
     text.append_text("\n\n####### Start of Response\n")
-    http.stream_ollama_response(text_content, function(response, done)
+    http.stream_ollama_response(config.model.chat, text_content, nil, function(response, done)
       if response then
         text.append_text(response)
       else
@@ -29,7 +30,7 @@ function M.explain(text_content)
         "Explain this code snippet give a big picture of the code and how it works, keep it simple and easy to understand: " ..
         text_content
     text.append_text("\n\n####### Start of Response\n")
-    http.stream_ollama_response(text_content, function(response, done)
+    http.stream_ollama_response(config.model.chat, text_content, nil, function(response, done)
       if response then
         text.append_text(response)
       else

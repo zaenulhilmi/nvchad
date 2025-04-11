@@ -1,3 +1,5 @@
+local config = require("rakit.config")
+
 local M = {}
 
 function M.get_request(url)
@@ -50,16 +52,26 @@ function M.fetch_url_async(url, callback)
   end)
 end
 
-function M.stream_ollama_response(prompt, on_response)
+function M.stream_ollama_response(model, prompt, suffix, on_response)
+  local data = {
+    model = model,
+    prompt = prompt,
+  }
+
+  if suffix then
+    data.suffix = suffix
+    data.options = {
+      temperature = 0,
+      num_predict = 200
+    }
+  end
+
   local cmd = {
     "curl",
     "--no-buffer", -- important to stream line by line
-    "--location", "http://localhost:11434/api/generate",
+    "--location", config.model.url,
     "--header", "Content-Type: application/json",
-    "--data", vim.fn.json_encode({
-    model = "codellama:7b",
-    prompt = prompt,
-  }),
+    "--data", vim.fn.json_encode(data),
   }
 
   vim.fn.jobstart(cmd, {

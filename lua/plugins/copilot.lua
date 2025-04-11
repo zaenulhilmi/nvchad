@@ -2,7 +2,7 @@ return {
   {
     "github/copilot.vim", -- Copilot plugin
     -- disable 
-    enabled =  true,
+    enabled =  false,
     event = "InsertEnter", -- Lazy load when entering insert mode
   }
 }

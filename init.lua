@@ -36,10 +36,7 @@ vim.schedule(function()
   require "mappings"
 end)
 
-
-
-require "configs.copilot_chat"
-
+require "configs.copilot_chat" 
 
 if vim.g.vscode then
   local vscode = require("vscode")

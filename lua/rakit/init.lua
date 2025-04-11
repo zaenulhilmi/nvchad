@@ -8,6 +8,8 @@ local window = require("rakit.window")
 local text = require("rakit.text")
 local config = require("rakit.config")
 local core = require("rakit.core")
+local http = require("rakit.http")
+
 
 function M.setup()
   -- Basic commands and keymaps
@@ -91,5 +93,69 @@ function M.setup()
   -- Setup ghost text functionality
   ghost.setup()
 end
+
+local function get_text_before_cursor_with_context(context_lines)
+  context_lines = context_lines or 3 -- default to 3 lines
+
+  local cur_row, cur_col = unpack(vim.api.nvim_win_get_cursor(0))
+  local start_line = math.max(cur_row - context_lines, 1)
+  local end_line = cur_row
+
+  local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
+
+  -- Trim the current line to cursor column
+  lines[#lines] = lines[#lines]:sub(1, cur_col)
+
+  return table.concat(lines, "\n")
+end
+
+local function get_text_after_cursor_with_context(context_lines)
+  context_lines = context_lines or 3 -- default to 3 lines
+
+  local cur_row, cur_col = unpack(vim.api.nvim_win_get_cursor(0))
+  local start_line = cur_row + 1
+  local end_line = math.min(cur_row + context_lines, vim.api.nvim_buf_line_count(0))
+
+  local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
+
+  -- Trim the current line to cursor column
+  lines[1] = lines[1]:sub(cur_col + 1)
+
+  return table.concat(lines, "\n")
+end
+
+local debounce_timer = vim.loop.new_timer()
+
+local time = 0
+-- This is the function that will be run after a delay
+local function on_stopped_typing()
+  print("User stopped typing for 1 second.")
+  time = time + 1
+  local text_before_cursor = get_text_before_cursor_with_context()
+  local text_after_cursor = get_text_after_cursor_with_context()
+  local ghost_text = ""
+
+  http.stream_ollama_response(config.model.code, text_before_cursor, text_after_cursor, function(response, done)
+    if response then
+      ghost_text = ghost_text .. response
+      ghost.update_ghost(ghost_text)
+    else
+      vim.notify("Failed to fetch URL", vim.sts.levels.ERROR)
+    end
+  end)
+end
+
+-- Set up autocommand
+vim.api.nvim_create_autocmd({ "InsertEnter", "InsertCharPre" }, {
+  callback = function()
+    -- Stop any previous timer
+    debounce_timer:stop()
+
+    -- Start a new one with 1-second delay
+    debounce_timer:start(1000, 0, vim.schedule_wrap(function()
+      on_stopped_typing()
+    end))
+  end
+})
 
 return M
