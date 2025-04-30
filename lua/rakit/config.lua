@@ -39,7 +39,9 @@ M.api = {
 M.model = {
   url = "http://localhost:11434/api/generate",
   chat = "gemma3:1b",
-  code = "codellama:code"
+  code = "codegemma:code"
 }
 
 return M
+
+

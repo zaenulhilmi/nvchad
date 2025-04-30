@@ -4,7 +4,7 @@ require("nvchad.configs.lspconfig").defaults()
 local lspconfig = require "lspconfig"
 
 -- EXAMPLE
-local servers = { "html", "cssls", "gopls", "ts_ls", "lua_ls", "pyright", "rust_analyzer" }
+local servers = { "html", "cssls", "gopls", "ts_ls", "lua_ls", "pyright", "rust_analyzer", "dartls" }
 local nvlsp = require "nvchad.configs.lspconfig"
 
 -- Define custom on_attach to include formatting keybind
@@ -24,6 +24,31 @@ local function on_attach(client, bufnr)
       { noremap = true, silent = true }
     )
   end
+
+  vim.api.nvim_buf_set_keymap(
+    bufnr,
+    "n",
+    "<leader>ca",
+    "<cmd>lua vim.lsp.buf.code_action()<CR>",
+    { noremap = true, silent = true }
+  )
+
+
+  vim.api.nvim_buf_set_keymap(
+    bufnr,
+    "v",
+    "<C-k>",
+    "<cmd>lua vim.lsp.buf.code_action()<CR>",
+    { noremap = true, silent = true }
+  )
+
+  vim.api.nvim_buf_set_keymap(
+    bufnr,
+    "n",
+    "<C-k>",
+    "<cmd>lua vim.lsp.buf.code_action()<CR>",
+    { noremap = true, silent = true }
+  )
 end
 
 -- lsps with default config
@@ -43,7 +68,7 @@ for _, lsp in ipairs(servers) do
         },
       },
     }
-  else 
+  else
     lspconfig[lsp].setup {
       on_attach = on_attach,
       on_init = nvlsp.on_init,
@@ -55,10 +80,10 @@ end
 
 
 
-
 -- configuring single server, example: typescript
 -- lspconfig.ts_ls.setup {
 --   on_attach = nvlsp.on_attach,
 --   on_init = nvlsp.on_init,
 --   capabilities = nvlsp.capabilities,
 -- }
+
