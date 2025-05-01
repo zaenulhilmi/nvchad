@@ -15,15 +15,13 @@ local function on_attach(client, bufnr)
   end
 
   -- Enable formatting keybind if the LSP supports it
-  if client.server_capabilities.documentFormattingProvider then
-    vim.api.nvim_buf_set_keymap(
-      bufnr,
-      "n",
-      "<leader>fc",
-      "<cmd>lua vim.lsp.buf.format({ async = true })<CR>",
-      { noremap = true, silent = true }
-    )
-  end
+  vim.api.nvim_buf_set_keymap(
+    bufnr,
+    "n",
+    "<leader>fc",
+    "<cmd>lua vim.lsp.buf.format({ async = true })<CR>",
+    { noremap = true, silent = true }
+  )
 
   vim.api.nvim_buf_set_keymap(
     bufnr,
@@ -86,4 +84,3 @@ end
 --   on_init = nvlsp.on_init,
 --   capabilities = nvlsp.capabilities,
 -- }
-
