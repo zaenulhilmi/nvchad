@@ -1,6 +1,7 @@
 vim.g.base46_cache = vim.fn.stdpath "data" .. "/base46/"
 vim.g.mapleader = " "
 
+
 -- bootstrap lazy and all plugins
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 
@@ -36,10 +37,12 @@ vim.schedule(function()
   require "mappings"
 end)
 
-require "configs.copilot_chat" 
+require "configs.copilot_chat"
 
 if vim.g.vscode then
   local vscode = require("vscode")
+  -- vscode open explorer when using leader + 1
+
 else
   -- ordinary Neovim
 end

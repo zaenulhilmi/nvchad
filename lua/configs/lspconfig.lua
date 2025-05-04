@@ -3,6 +3,8 @@ require("nvchad.configs.lspconfig").defaults()
 
 local lspconfig = require "lspconfig"
 
+local map = vim.keymap.set
+
 -- EXAMPLE
 local servers = { "html", "cssls", "gopls", "ts_ls", "lua_ls", "pyright", "rust_analyzer", "dartls" }
 local nvlsp = require "nvchad.configs.lspconfig"
@@ -14,39 +16,48 @@ local function on_attach(client, bufnr)
     nvlsp.on_attach(client, bufnr)
   end
 
-  -- Enable formatting keybind if the LSP supports it
-  vim.api.nvim_buf_set_keymap(
-    bufnr,
-    "n",
-    "<leader>fc",
-    "<cmd>lua vim.lsp.buf.format({ async = true })<CR>",
-    { noremap = true, silent = true }
-  )
+  if vim.g.vscode then
+    map(
+      "n",
+      "<leader>fc",
+      "<cmd>lua require('vscode').action('editor.action.formatDocument')<CR>",
+      { noremap = true, silent = true }
+    )
+  else
+    -- Enable formatting keybind if the LSP supports it
+    vim.api.nvim_buf_set_keymap(
+      bufnr,
+      "n",
+      "<leader>fc",
+      "<cmd>lua vim.lsp.buf.format({ async = true })<CR>",
+      { noremap = true, silent = true }
+    )
 
-  vim.api.nvim_buf_set_keymap(
-    bufnr,
-    "n",
-    "<leader>ca",
-    "<cmd>lua vim.lsp.buf.code_action()<CR>",
-    { noremap = true, silent = true }
-  )
+    vim.api.nvim_buf_set_keymap(
+      bufnr,
+      "n",
+      "<leader>ca",
+      "<cmd>lua vim.lsp.buf.code_action()<CR>",
+      { noremap = true, silent = true }
+    )
 
 
-  vim.api.nvim_buf_set_keymap(
-    bufnr,
-    "v",
-    "<C-k>",
-    "<cmd>lua vim.lsp.buf.code_action()<CR>",
-    { noremap = true, silent = true }
-  )
+    vim.api.nvim_buf_set_keymap(
+      bufnr,
+      "v",
+      "<C-k>",
+      "<cmd>lua vim.lsp.buf.code_action()<CR>",
+      { noremap = true, silent = true }
+    )
 
-  vim.api.nvim_buf_set_keymap(
-    bufnr,
-    "n",
-    "<C-k>",
-    "<cmd>lua vim.lsp.buf.code_action()<CR>",
-    { noremap = true, silent = true }
-  )
+    vim.api.nvim_buf_set_keymap(
+      bufnr,
+      "n",
+      "<C-k>",
+      "<cmd>lua vim.lsp.buf.code_action()<CR>",
+      { noremap = true, silent = true }
+    )
+  end
 end
 
 -- lsps with default config
@@ -74,13 +85,3 @@ for _, lsp in ipairs(servers) do
     }
   end
 end
-
-
-
-
--- configuring single server, example: typescript
--- lspconfig.ts_ls.setup {
---   on_attach = nvlsp.on_attach,
---   on_init = nvlsp.on_init,
---   capabilities = nvlsp.capabilities,
--- }

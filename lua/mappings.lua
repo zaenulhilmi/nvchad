@@ -27,10 +27,31 @@ vim.g.clipboard = {
 
 if vim.g.vscode then
   -- VSCode extension
+  map("n", "<leader>1", "<cmd>lua require('vscode').action('workbench.action.toggleSidebarVisibility')<CR>",
+    { desc = "Toggle Vscode Explorer" })
+
+  map({ "n", "t" }, "<leader>0", "<cmd>lua require('vscode').action('workbench.action.terminal.toggleTerminal')<CR>",
+    { desc = "Toggle Terminal" })
+
+  map({ "n", "t" }, "<M>0", "<cmd>lua require('vscode').action('workbench.action.terminal.toggleTerminal')<CR>",
+    { desc = "Toggle Terminal" })
+
+  map("n", "<leader>fc", "<cmd>lua require('vscode').action('editor.action.formatDocument')<CR>",
+    { desc = "Quick Open File" }
+  )
+
+  map("n", "<leader>ff", "<cmd>lua require('vscode').action('find-it-faster.findFiles')<CR>",
+    { desc = "Open File Folder" })
+
+  map("n", "<leader>fw", "<cmd>lua require('vscode').action('find-it-faster.findWithinFiles')<CR>",
+    { desc = "Open File Folder" })
+
+  map("n", "<leader>x", "<cmd>lua require('vscode').action('workbench.action.closeActiveEditor')<CR>",
+    { desc = "Close Active Editor" })
 else
   map("n", "<leader>1", "<cmd>NvimTreeToggle<cr>", { desc = "Toggle NvimTree" })
-end
 
-map({ "n", "t" }, "<leader>0", function()
-  require("nvchad.term").toggle { pos = "sp", id = "htoggleTerm" }
-end, { desc = "terminal toggleable horizontal term" })
+  map({ "n", "t" }, "<leader>0", function()
+    require("nvchad.term").toggle { pos = "sp", id = "htoggleTerm" }
+  end, { desc = "terminal toggleable horizontal term" })
+end
