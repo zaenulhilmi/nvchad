@@ -37,6 +37,8 @@ vim.schedule(function()
   require "mappings"
 end)
 
+vim.o.swapfile = false
+
 
 if vim.g.vscode then
   local vscode = require("vscode")

@@ -1,87 +1,20 @@
--- load defaults i.e lua_lsp
-require("nvchad.configs.lspconfig").defaults()
+local nv = require("nvchad.configs.lspconfig")
+nv.defaults()
 
-local lspconfig = require "lspconfig"
+-- Enable common servers via the built-in helper
+vim.lsp.enable({ "html", "cssls", "gopls", "pyright", "rust_analyzer", "dartls" })
 
-local map = vim.keymap.set
+-- Configure TypeScript (ts_ls) using the new API (no require('lspconfig'))
+-- This avoids the upstream root_dir path-join issue.
+vim.lsp.config('ts_ls', {
+  -- Use new signature: function(bufnr, on_dir)
+  root_dir = function(bufnr, on_dir)
+    local markers = { 'tsconfig.json', 'jsconfig.json', 'package.json', '.git' }
+    local root = vim.fs.root(bufnr, markers) or vim.fn.getcwd()
+    on_dir(root)
+  end,
+  single_file_support = true,
+})
 
--- EXAMPLE
-local servers = { "html", "cssls", "gopls", "ts_ls", "lua_ls", "pyright", "rust_analyzer", "dartls" }
-local nvlsp = require "nvchad.configs.lspconfig"
-
--- Define custom on_attach to include formatting keybind
-local function on_attach(client, bufnr)
-  -- Run NvChad's default on_attach
-  if nvlsp.on_attach then
-    nvlsp.on_attach(client, bufnr)
-  end
-
-  if vim.g.vscode then
-    map(
-      "n",
-      "<leader>fc",
-      "<cmd>lua require('vscode').action('editor.action.formatDocument')<CR>",
-      { noremap = true, silent = true }
-    )
-  else
-    -- Enable formatting keybind if the LSP supports it
-    vim.api.nvim_buf_set_keymap(
-      bufnr,
-      "n",
-      "<leader>fc",
-      "<cmd>lua vim.lsp.buf.format({ async = true })<CR>",
-      { noremap = true, silent = true }
-    )
-
-    vim.api.nvim_buf_set_keymap(
-      bufnr,
-      "n",
-      "<leader>ca",
-      "<cmd>lua vim.lsp.buf.code_action()<CR>",
-      { noremap = true, silent = true }
-    )
-
-
-    vim.api.nvim_buf_set_keymap(
-      bufnr,
-      "v",
-      "<C-k>",
-      "<cmd>lua vim.lsp.buf.code_action()<CR>",
-      { noremap = true, silent = true }
-    )
-
-    vim.api.nvim_buf_set_keymap(
-      bufnr,
-      "n",
-      "<C-k>",
-      "<cmd>lua vim.lsp.buf.code_action()<CR>",
-      { noremap = true, silent = true }
-    )
-  end
-end
-
--- lsps with default config
-for _, lsp in ipairs(servers) do
-  if lsp == "lua_ls" then
-    lspconfig[lsp].setup {
-      on_attach = on_attach,
-      on_init = nvlsp.on_init,
-      capabilities = nvlsp.capabilities,
-      settings = {
-        Lua = {
-          diagnostics = { globals = { "vim" } },
-          workspace = {
-            library = vim.api.nvim_get_runtime_file("", true),
-            checkThirdParty = false,
-          },
-        },
-      },
-    }
-  else
-    lspconfig[lsp].setup {
-      on_attach = on_attach,
-      on_init = nvlsp.on_init,
-      capabilities = nvlsp.capabilities,
-    }
-  end
-end
+-- Enable TypeScript after configuring it
+vim.lsp.enable('ts_ls')
