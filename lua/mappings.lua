@@ -24,34 +24,27 @@ vim.g.clipboard = {
   cache_enabled = 0,
 }
 
+-- Neovim only mappings
+map("n", "<leader>1", "<cmd>NvimTreeToggle<cr>", { desc = "Toggle NvimTree" })
 
-if vim.g.vscode then
-  -- VSCode extension
-  map("n", "<leader>1", "<cmd>lua require('vscode').action('workbench.action.toggleSidebarVisibility')<CR>",
-    { desc = "Toggle Vscode Explorer" })
+map({ "n", "t" }, "<leader>0", function()
+  require("nvchad.term").toggle { pos = "sp", id = "htoggleTerm" }
+end, { desc = "Toggle Terminal" })
 
-  map({ "n", "t" }, "<leader>0", "<cmd>lua require('vscode').action('workbench.action.terminal.toggleTerminal')<CR>",
-    { desc = "Toggle Terminal" })
+-- LSP: navigation + actions
+map("n", "gd", function()
+  vim.lsp.buf.definition()
+end, { desc = "LSP: Go to definition", silent = true })
 
-  map({ "n", "t" }, "<M>0", "<cmd>lua require('vscode').action('workbench.action.terminal.toggleTerminal')<CR>",
-    { desc = "Toggle Terminal" })
+map("n", "gi", function()
+  vim.lsp.buf.implementation()
+end, { desc = "LSP: Go to implementation", silent = true })
 
-  map("n", "<leader>fc", "<cmd>lua require('vscode').action('editor.action.formatDocument')<CR>",
-    { desc = "Quick Open File" }
-  )
+map("n", "<leader>ca", function()
+  vim.lsp.buf.code_action()
+end, { desc = "LSP: Code actions", silent = true })
 
-  map("n", "<leader>ff", "<cmd>lua require('vscode').action('find-it-faster.findFiles')<CR>",
-    { desc = "Open File Folder" })
-
-  map("n", "<leader>fw", "<cmd>lua require('vscode').action('find-it-faster.findWithinFiles')<CR>",
-    { desc = "Open File Folder" })
-
-  map("n", "<leader>x", "<cmd>lua require('vscode').action('workbench.action.closeActiveEditor')<CR>",
-    { desc = "Close Active Editor" })
-else
-  map("n", "<leader>1", "<cmd>NvimTreeToggle<cr>", { desc = "Toggle NvimTree" })
-
-  map({ "n", "t" }, "<leader>0", function()
-    require("nvchad.term").toggle { pos = "sp", id = "htoggleTerm" }
-  end, { desc = "terminal toggleable horizontal term" })
-end
+-- LSP formatting
+map("n", "<leader>cf", function()
+  vim.lsp.buf.format { async = false }
+end, { desc = "LSP: Format file", silent = true })
