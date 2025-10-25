@@ -48,3 +48,47 @@ end, { desc = "LSP: Code actions", silent = true })
 map("n", "<leader>cf", function()
   vim.lsp.buf.format { async = false }
 end, { desc = "LSP: Format file", silent = true })
+
+-- 📝 Toggle Writer Mode (no spellcheck)
+local writer_mode_enabled = false
+
+function ToggleWriterMode()
+  writer_mode_enabled = not writer_mode_enabled
+
+  if writer_mode_enabled then
+    -- enable writer mode
+    vim.opt.wrap = true
+    vim.opt.textwidth = 80
+    vim.opt.formatoptions:append("t")
+
+    vim.opt.number = false
+    vim.opt.relativenumber = false
+    vim.opt.scrolloff = 8
+    vim.opt.colorcolumn = "80"
+    vim.opt.cursorline = false
+
+    -- optional: Zen Mode integration
+    pcall(function()
+      require("zen-mode").open()
+    end)
+
+    print("✍️ Writer Mode enabled")
+  else
+    -- restore normal mode
+    vim.opt.wrap = false
+    vim.opt.linebreak = false
+    vim.opt.number = true
+    vim.opt.relativenumber = true
+    vim.opt.colorcolumn = ""
+    vim.opt.cursorline = true
+
+    pcall(function()
+      require("zen-mode").close()
+    end)
+
+    print("💻 Writer Mode disabled")
+  end
+end
+
+-- Keybinding
+map("n", "<leader>w", ToggleWriterMode, { desc = "Toggle Writer Mode" })
